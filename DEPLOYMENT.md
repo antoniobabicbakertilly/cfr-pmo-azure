@@ -95,8 +95,21 @@ gh repo create cfr-pmo-azure --public --source=. --remote=origin --push
 Azure provisions the resource (~30s) and:
 - Generates a deployment token
 - Commits `.github/workflows/azure-static-web-apps-<random>.yml` to your repo's `main` branch
-- The new workflow auto-triggers and builds the app
+- The new workflow auto-triggers **and will fail on its first run**
 - Live URL appears on the SWA Overview page once the build finishes (~2-3 min)
+
+> **⚠️ Required manual fix after Azure commits the workflow:**
+>
+> Azure always auto-generates `output_location: "build"` (the Create React App default)
+> regardless of what you typed in the portal. This project uses Vite, which outputs to `dist`.
+> You must fix the workflow before the build succeeds:
+>
+> 1. `git pull origin master` (or `main`) — pulls the Azure-committed workflow file
+> 2. Open `.github/workflows/azure-static-web-apps-<random>.yml`
+> 3. Change `output_location: "build"` → `output_location: "dist"`
+> 4. `git add . && git commit -m "fix: output_location dist" && git push`
+>
+> The second run will succeed.
 
 ---
 
